@@ -17,6 +17,7 @@ limitations under the License.
 
 #include <gtest/gtest.h>
 #include "absl/flags/flag.h"
+#include "absl/status/status.h"
 #include "lingvo/core/ops/input_common.h"
 #include "lingvo/core/ops/sequential_record_yielder.h"
 #include "tensorflow/core/lib/core/errors.h"
@@ -294,7 +295,7 @@ TEST(RecordBatcher, CaptureYielderStatus) {
   // repeat count of the iterator, and so we should expect that no more
   // data can be yielded.
   Status s = batcher.GetNext(/*ctx=*/nullptr, &bucket_id, &batch);
-  ASSERT_TRUE(errors::IsOutOfRange(s));
+  ASSERT_TRUE(absl::IsOutOfRange(s));
 }
 
 TEST(RecordBatcher, SequentialEoFImmediately) {
@@ -315,7 +316,7 @@ TEST(RecordBatcher, SequentialEoFImmediately) {
   int64_t bucket_id;
   TensorVec batch;
   Status s = batcher.GetNext(/*ctx=*/nullptr, &bucket_id, &batch);
-  ASSERT_TRUE(errors::IsOutOfRange(s));
+  ASSERT_TRUE(absl::IsOutOfRange(s));
 }
 
 }  // namespace lingvo

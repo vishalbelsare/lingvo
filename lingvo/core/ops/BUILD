@@ -182,6 +182,7 @@ lingvo_cc_test(
         ":input_common",
         ":record",
         # Implicit absl.flags:flag dependency.
+        "//third_party/absl/status",
     ],
 )
 
