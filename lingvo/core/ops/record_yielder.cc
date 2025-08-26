@@ -21,6 +21,7 @@ limitations under the License.
 #include <thread>  // NOLINT(build/c++11)
 #include <unordered_map>
 
+#include "absl/status/status.h"
 #include "absl/strings/escaping.h"
 #include "absl/strings/match.h"
 #include "absl/synchronization/mutex.h"
@@ -281,7 +282,7 @@ class PlainTextIterator : public RecordIterator {
 
   bool Next(string* key, Rope* value) override {
     Status s = buf_.ReadLine(&line_);
-    if (errors::IsOutOfRange(s)) return false;
+    if (absl::IsOutOfRange(s)) return false;
     TF_CHECK_OK(s);
     *key = strings::Printf("%08lld", static_cast<long long>(num_++));
     *value = line_;
@@ -304,7 +305,7 @@ class TFRecordIterator : public RecordIterator {
 
   bool Next(string* key, Rope* value) override {
     Status s = reader_.ReadRecord(&record_);
-    if (errors::IsOutOfRange(s)) return false;
+    if (absl::IsOutOfRange(s)) return false;
     *key = strings::Printf("%08lld", static_cast<long long>(num_++));
     *value = Rope(record_);
     return true;

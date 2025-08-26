@@ -144,6 +144,7 @@ lingvo_cc_library(
     deps = [
         ":rope",
         ":versioned_file_set_proto_cc",
+        "//third_party/absl/status",
         # Implicit absl.strings dependency.
         # Implicit str_format dependency.
         # Implicit absl.synchronization dependency.
@@ -158,6 +159,7 @@ lingvo_cc_test(
         ":record",
         ":yielder_test_helper",
         # Implicit absl.flags:flag dependency.
+        "//third_party/absl/status",
     ],
 )
 
@@ -310,6 +312,7 @@ custom_kernel_library(
     srcs = ["best_step_op_kernels.cc"],
     op_def_lib = [":x_ops"],
     deps = [
+        "//third_party/absl/status",
         # Implicit tensorflow C++ proto dependency.
     ],
 )

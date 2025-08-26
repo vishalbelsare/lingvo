@@ -13,6 +13,7 @@ See the License for the specific language governing permissions and
 limitations under the License.
 ==============================================================================*/
 
+#include "absl/status/status.h"
 #include "tensorflow/core/framework/op_kernel.h"
 #include "tensorflow/core/framework/summary.pb.h"
 #include "tensorflow/core/framework/tensor.h"
@@ -108,7 +109,7 @@ class BestStepOp : public OpKernel {
       string line;
       while (true) {
         const Status s = in.ReadLine(&line);
-        if (errors::IsOutOfRange(s)) break;
+        if (absl::IsOutOfRange(s)) break;
         TF_CHECK_OK(s);
         std::vector<string> split_line = str_util::Split(line, ' ');
         CHECK_EQ(split_line.size(), 2);

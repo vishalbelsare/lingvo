@@ -64,6 +64,7 @@ limitations under the License.
 #include <utility>
 #include <vector>
 
+#include "absl/status/status.h"
 #include "absl/synchronization/mutex.h"
 #include "tensorflow/core/lib/core/errors.h"
 #include "tensorflow/core/lib/strings/str_util.h"
@@ -326,7 +327,7 @@ void RecordBatcher::ProcessorLoop() {
     Status s = yielder_->Yield(&record);
     // yielder may return OutOfRange to indicate end-of-epoch.
     // Set the out status appropriately and return.
-    if (errors::IsOutOfRange(s)) {
+    if (absl::IsOutOfRange(s)) {
       LOG(INFO) << "Yielder out of range: " << s;
       absl::MutexLock l(&mu_);
       stop_status_ = s;
@@ -346,7 +347,7 @@ void RecordBatcher::ProcessorLoop() {
     if (!s.ok()) {
       // Print error message. Some example processors use CANCELLED for data
       // that are filtered out. Print only first 10 such errors.
-      if (errors::IsCancelled(s)) {
+      if (absl::IsCancelled(s)) {
         {
           absl::MutexLock l(&mu_);
           ++total_records_skipped_;
@@ -364,7 +365,7 @@ void RecordBatcher::ProcessorLoop() {
             LOG(FATAL) << s;
           }
         }
-        if (errors::IsNotFound(s) || errors::IsPermissionDenied(s)) {
+        if (absl::IsNotFound(s) || absl::IsPermissionDenied(s)) {
           // Terminates program if an unregistered custom op is used by
           // the processor, or any access permission denied error.
           //

@@ -19,10 +19,10 @@ limitations under the License.
 
 #include <gtest/gtest.h>
 #include "absl/flags/flag.h"
+#include "absl/status/status.h"
 #include "lingvo/core/ops/input_common.h"
 #include "lingvo/core/ops/sequential_record_yielder.h"
 #include "lingvo/core/ops/yielder_test_helper.h"
-#include "tensorflow/core/lib/core/errors.h"
 #include "tensorflow/core/lib/core/stringpiece.h"
 #include "tensorflow/core/lib/io/compression.h"
 #include "tensorflow/core/lib/io/path.h"
@@ -125,7 +125,7 @@ TEST(SequentialRecordYielderTest, SequentialRecordYielderRepeatCount) {
 
   // Trying to yield one more element should throw an out of range error.
   Status s = yielder->Yield(&record);
-  ASSERT_TRUE(errors::IsOutOfRange(s)) << s;
+  ASSERT_TRUE(absl::IsOutOfRange(s)) << s;
 
   yielder->Close();
 }
