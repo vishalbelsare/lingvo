@@ -1,3 +1,5 @@
+load("@rules_cc//cc:cc_library.bzl", "cc_library")
+
 # Placeholder: load py_library
 # Placeholder: load py_test
 load(

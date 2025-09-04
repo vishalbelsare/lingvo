@@ -1,5 +1,9 @@
 """Implements custom rules for Lingvo."""
 
+load("@rules_cc//cc:cc_binary.bzl", "cc_binary")
+load("@rules_cc//cc:cc_library.bzl", "cc_library")
+load("@rules_cc//cc:cc_test.bzl", "cc_test")
+
 def tf_copts():
     #  "-Wno-sign-compare", "-mavx" removed for compat with aarch64
     return ["-std=c++17"] + select({
@@ -8,7 +12,7 @@ def tf_copts():
     })
 
 def lingvo_cc_library(name, srcs = [], hdrs = [], deps = [], testonly = 0):
-    native.cc_library(
+    cc_library(
         name = name,
         copts = tf_copts(),
         srcs = srcs,
@@ -29,7 +33,7 @@ def lingvo_cc_test_library(name, srcs = [], hdrs = [], deps = []):
     )
 
 def lingvo_cc_binary(name, srcs = [], deps = []):
-    native.cc_binary(
+    cc_binary(
         name = name,
         copts = tf_copts(),
         srcs = srcs,
@@ -40,7 +44,7 @@ def lingvo_cc_binary(name, srcs = [], deps = []):
     )
 
 def lingvo_cc_test(name, srcs, deps = [], **kwargs):
-    native.cc_test(
+    cc_test(
         name = name,
         copts = tf_copts(),
         srcs = srcs,
@@ -57,7 +61,7 @@ def lingvo_cc_test(name, srcs, deps = [], **kwargs):
 lingvo_py_binary = native.py_binary
 
 def custom_kernel_library(name, op_def_lib, srcs, hdrs = [], deps = []):
-    native.cc_library(
+    cc_library(
         name = name,
         srcs = srcs,
         hdrs = hdrs,
@@ -70,7 +74,7 @@ def custom_kernel_library(name, op_def_lib, srcs, hdrs = [], deps = []):
 
 def gen_op_cclib(name, srcs, deps = [], nonportable_deps = []):
     # TODO(drpng): gpu.
-    native.cc_library(
+    cc_library(
         name = name,
         srcs = srcs,
         deps = [
@@ -82,7 +86,7 @@ def gen_op_cclib(name, srcs, deps = [], nonportable_deps = []):
     )
 
 def gen_op_pylib(name, cc_lib_name, srcs, kernel_deps, py_deps = [], **kwargs):
-    native.cc_binary(
+    cc_binary(
         name = cc_lib_name + ".so",
         deps = [cc_lib_name] + kernel_deps,
         linkshared = 1,
