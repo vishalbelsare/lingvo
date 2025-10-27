@@ -14,6 +14,7 @@
 # ==============================================================================
 """Tests for metrics."""
 
+from absl.testing import parameterized
 import lingvo.compat as tf
 from lingvo.core import metrics
 from lingvo.core import py_utils
@@ -21,7 +22,7 @@ from lingvo.core import test_utils
 import numpy as np
 
 
-class MetricsTest(test_utils.TestCase):
+class MetricsTest(parameterized.TestCase, test_utils.TestCase):
 
   def testAverageMetric(self):
     m = metrics.AverageMetric()
@@ -179,7 +180,7 @@ class MetricsTest(test_utils.TestCase):
     summary = m.Summary('test')
     # Reservoir sampling will sample values 5 and 3 to remain with the current
     # seed.
-    self.assertEqual(2, len(summary.value))
+    self.assertLen(summary.value, 2)
     self.assertEqual(5, summary.value[0].simple_value)
     self.assertEqual(3, summary.value[1].simple_value)
 
@@ -272,6 +273,40 @@ class MetricsTest(test_utils.TestCase):
                 weight=[min(1.0, weight[i] + weight[j])])
       left = right
     self.assertEqual(pair_m.value, group_m.value)
+
+  @parameterized.named_parameters(
+      dict(
+          testcase_name='all_positive_first',
+          target=[1.0, 0.0, 1.0, 0.0, 1.0, 0.0, 1.0, 0.0],
+          logits=[0.0, 1.0, 1.0, 0.0, 0.0, 1.0, 0.0, 1.0],
+          expected_auc=0.0,  # 0.0 because all pairs have the same label.
+      ),
+      dict(
+          testcase_name='all_negative_first',
+          target=[0.0, 1.0, 0.0, 1.0, 0.0, 1.0, 0.0, 1.0],
+          logits=[1.0, 0.0, 0.0, 1.0, 1.0, 0.0, 1.0, 0.0],
+          expected_auc=0.0,  # 0.0 because all pairs have the same label.
+      ),
+      dict(
+          testcase_name='all_positive_first_except_first_group',
+          target=[0.0, 1.0, 1.0, 0.0, 1.0, 0.0, 1.0, 0.0],
+          logits=[1.0, 0.0, 1.0, 0.0, 0.0, 1.0, 0.0, 1.0],
+          expected_auc=0.17,
+      ),
+  )
+  def testGroupPairAUCMetricTargetSorting(
+      self, *, target, logits, expected_auc
+  ):
+    if not metrics.HAS_SKLEARN:
+      self.skipTest('sklearn is not installed.')
+    group_m = metrics.GroupPairAUCMetric()
+    group_ids = [0, 0, 1, 1, 2, 2, 3, 3]
+    weight = [1.0] * 8
+    group_m.UpdateRaw(
+        group_ids=group_ids, target=target, logits=logits, weight=weight
+    )
+    self.assertAlmostEqual(group_m.value, expected_auc, places=2)
+
 
 if __name__ == '__main__':
   test_utils.main()
