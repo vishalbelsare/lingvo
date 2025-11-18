@@ -16,6 +16,8 @@ limitations under the License.
 #include "lingvo/core/ops/record_yielder.h"
 
 #include <chrono>  // NOLINT(build/c++11)
+#include <cstdint>
+#include <limits>
 #include <memory>
 #include <string>
 #include <thread>  // NOLINT(build/c++11)
@@ -330,7 +332,7 @@ class IotaIterator : public RecordIterator {
  public:
   IotaIterator(const string& filename) {
     if (filename.empty() || !strings::safe_strto64(filename, &max_)) {
-      max_ = kint64max;
+      max_ = std::numeric_limits<int64_t>::max();
     }
   }
 
@@ -344,7 +346,7 @@ class IotaIterator : public RecordIterator {
   }
 
  private:
-  int64_t max_ = kint64max;
+  int64_t max_ = std::numeric_limits<int64_t>::max();
   int64_t num_ = 0;
 };
 
